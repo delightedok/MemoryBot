@@ -91,21 +91,24 @@ class CAddressAnalyserHandler:
 
     @staticmethod
     def _log_analyse(line, args):
+        args[1] += 1
         if CAddressAnalyserUtils.log_is_malloc_line(line):
             info = CAddressAnalyserUtils.log_get_line_info(line)
             if info is not None:
-                args[info['Address']] = info
+                info['Line'] = args[1]
+                args[0][info['Address']] = info
         elif CAddressAnalyserUtils.log_is_free_line(line):
             info = CAddressAnalyserUtils.log_get_line_info(line)
             if info is not None:
                 try:
-                    args.pop(info['Address'])
+                    args[0].pop(info['Address'])
                 except KeyError:
                     print('key[{}] is not in address_info_dict'.format(info['Address']))
 
     def log_analyse(self, filename_log, filename_dst=None):
         log_file_handler = FileUtils.FileHandler(filename_log)
-        log_file_handler.read_line_iterator(self._log_analyse, args=self.address_info_dict)
+        line = 0
+        log_file_handler.read_line_iterator(self._log_analyse, args=[self.address_info_dict, line])
         for item in self.address_info_dict:
             if filename_dst is not None:
                 FileUtils.FileUtils.append_plain(filename_dst, self.address_info_dict[item])
