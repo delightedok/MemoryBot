@@ -95,7 +95,7 @@ class CAddressAnalyserHandler:
         if CAddressAnalyserUtils.log_is_malloc_line(line):
             info = CAddressAnalyserUtils.log_get_line_info(line)
             if info is not None:
-                info['Line'] = args[1]
+                info['Line_LOG'] = args[1]
                 args[0][info['Address']] = info
         elif CAddressAnalyserUtils.log_is_free_line(line):
             info = CAddressAnalyserUtils.log_get_line_info(line)
