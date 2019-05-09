@@ -35,9 +35,27 @@ class FileHandler:
         if write_encoding is not None:
             self.write_encoding = write_encoding
 
-    def rename(self, filename_old, filename_new):
-        os.rename(filename_old, filename_new)
+    def rename(self, filename_new):
+        os.rename(self.filename, filename_new)
         self.filename = filename_new
+
+    def path(self):
+        return os.path.dirname(self.filename)
+
+    def basename(self):
+        return os.path.basename(self.filename)
+
+    @staticmethod
+    def _format_eol_callback(line, args):
+        FileUtils.append_plain(args, line)
+
+    # format end of line: if the line is end not with '\r\n', then the function would format the line to end with '\r\n'
+    def format_eol(self):
+        format_basename = '.' + self.basename() + '.format'
+        format_filename = FileUtils.path_join_filename(self.path(), format_basename)
+        self.read_line_iterator(self._format_eol_callback, args=format_filename)
+        self.remove()
+        FileUtils.rename(format_filename, self.filename)
 
 
 class FileUtils:
@@ -90,3 +108,29 @@ class FileUtils:
     @staticmethod
     def rename(filename_old, filename_new):
         os.rename(filename_old, filename_new)
+
+    @staticmethod
+    def get_path_from_filename(filename):
+        return os.path.dirname(filename)
+
+    @staticmethod
+    def get_basename_from_filename(filename):
+        return os.path.basename(filename)
+
+    @staticmethod
+    def _format_eol_callback(line, args):
+        filename = args[0]
+        encoding = args[1]
+        FileUtils.append_plain(filename, line, encoding=encoding)
+
+    # format end of line: if the line is end not with '\r\n', then the function would format the line to end with '\r\n'
+    @staticmethod
+    def format_eol(filename, replace=False, encoding='utf-8'):
+        basename = FileUtils.get_basename_from_filename(filename)
+        path = FileUtils.get_path_from_filename(filename)
+        filename_format = FileUtils.path_join_filename(path, '.' + basename + '.format')
+        FileUtils.read_line_iterator(filename, FileUtils._format_eol_callback,
+                                     args=[filename_format, encoding], encoding=encoding)
+        if replace is True:
+            FileUtils.remove(filename)
+            FileUtils.rename(filename_format, filename)
