@@ -80,9 +80,12 @@ class FileUtils:
 
     @staticmethod
     def is_file_with_suffix(filename, suffix):
-        regexp = r'[\w\W]+?\.' + suffix
+        regexp = r'^[\w\W]+?\.' + suffix + r'$'
         pattern = re.compile(regexp)
-        return pattern.match(filename)
+        if pattern.match(filename) is not None:
+            return True
+        else:
+            return False
 
     @staticmethod
     def rename(filename_old, filename_new):
