@@ -111,6 +111,6 @@ class CAddressAnalyserHandler:
         log_file_handler.read_line_iterator(self._log_analyse, args=[self.address_info_dict, line])
         for item in self.address_info_dict:
             if filename_dst is not None:
-                FileUtils.FileUtils.append_plain(filename_dst, str(self.address_info_dict[item]))
+                FileUtils.FileUtils.append_plain(filename_dst, str(self.address_info_dict[item]) + '\n')
             else:
                 print(item + ' -- ' + str(self.address_info_dict[item]))
