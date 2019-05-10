@@ -85,15 +85,21 @@ class FileUtils:
         return os.path.join(path, filename)
 
     @staticmethod
-    def get_files_from_path(path):
+    def _get_files_from_path(path, path_depth):
         result_list = list()
         file_list = os.listdir(path)
         for file in file_list:
             filename = os.path.join(path, file)
             if os.path.isfile(filename):
-                result_list.append(filename)
+                result_list.append([filename, path_depth])
             else:
-                result_list += FileUtils.get_files_from_path(filename)
+                result_list += FileUtils._get_files_from_path(filename, path_depth + 1)
+        return result_list
+
+    @staticmethod
+    def get_files_from_path(path):
+        path_depth = 0
+        result_list = FileUtils._get_files_from_path(path, path_depth)
         return result_list
 
     @staticmethod
