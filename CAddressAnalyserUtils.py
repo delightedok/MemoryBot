@@ -134,7 +134,11 @@ class CAddressAnalyserHandler:
         if CAddressAnalyserUtils.is_malloc_line(line):
             pointer = CAddressAnalyserUtils.get_malloc_line_address_variable(line)
             file_handler.append_plain(line)
-            file_handler.append_plain('python_record_malloc_address(__FUNCTION__, __LINE__, {});\n'.format(pointer))
+            if '\\' not in line:
+                file_handler.append_plain('python_record_malloc_address(__FUNCTION__, __LINE__, {});\n'.format(pointer))
+            else:
+                file_handler.append_plain('python_record_malloc_address(__FUNCTION__, __LINE__, {});\\\n'
+                                          .format(pointer))
         elif CAddressAnalyserUtils.is_free_line(line):
             pointer = CAddressAnalyserUtils.get_free_line_address_variable(line)
             if '\\' in line:
