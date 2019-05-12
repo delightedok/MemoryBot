@@ -8,9 +8,10 @@ import FileUtils
 
 class CAddressAnalyserUtils:
 
-    pat_malloc = re.compile(r'^[\t _0-9a-zA-Z*\->.]+?=[\w\W]*?[c|m]alloc[\w\W]+')
-    pat_malloc_address_declare = re.compile(r'^[\t _0-9a-zA-Z*\->.]+')
-    pat_malloc_address = re.compile(r'[_0-9a-zA-Z\->.]+')
+    pat_malloc = re.compile(r'^[\t _0-9a-zA-Z*\->.()]+?=[\w\W]*?[c|m]alloc[\w\W]+')
+    pat_malloc_address_declare = re.compile(r'^[\t _0-9a-zA-Z*\->.()]+')
+    pat_malloc_address = re.compile(r'[_0-9a-zA-Z\->.()]+')
+    pat_type = re.compile(r'^[0-9a-zA-Z_]+[ *]')
 
     # malloc memory by calling malloc or calloc
     @staticmethod
@@ -18,12 +19,18 @@ class CAddressAnalyserUtils:
         result = CAddressAnalyserUtils.pat_malloc.findall(line)
         if len(result) > 0:
             address_declare = CAddressAnalyserUtils.pat_malloc_address_declare.findall(result[0])[0]
-            address = CAddressAnalyserUtils.pat_malloc_address.findall(result[0])
-            if len(address) > 0:
-                if '*' in address_declare:
-                    return address[1]
-                else:
-                    return address[0]
+            address_declare_strip = address_declare.strip()
+            address_declare_type = CAddressAnalyserUtils.pat_type.findall(address_declare_strip)
+            if len(address_declare_type) > 0:  # e.g. char * buf = (char *)calloc(size, 1);
+                address_type = address_declare_type[0][: len(address_declare_type[0]) - 1]
+                address_declare_pointer = address_declare_strip[len(address_type):]
+                address_declare_pointer_strip = address_declare_pointer.strip()
+                if '*' == address_declare_pointer_strip[0]:  # e.g. char * buf
+                    return address_declare_pointer_strip[1:].strip()
+                else:  # e.g. typedef struct TYPE * LPTYPE; LPTYPE buf = (LPTYPE)calloc(1, sizeof(struct TYPE));
+                    return address_declare_pointer_strip
+            else:  # e.g. *buf = (char *)calloc(size, 1);
+                return address_declare_strip
         return None
 
     # malloc memory by calling malloc or calloc
