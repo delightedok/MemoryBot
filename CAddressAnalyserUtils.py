@@ -114,16 +114,16 @@ class CAddressAnalyserHandler:
 
     record_address_code_h = '#ifndef _PYTHON_RECORD_MEMORY_H_\n' \
                             '#define _PYTHON_RECORD_MEMORY_H_\n' \
-                            'void python_record_malloc_address(char * function, int line, void * pointer);\n' \
-                            'void python_record_free_address(char * function, int line, void * pointer);\n' \
+                            'void python_record_malloc_address(const char * function, int line, void * pointer);\n' \
+                            'void python_record_free_address(const char * function, int line, void * pointer);\n' \
                             '#endif\n'
     record_malloc_code_include = '#include <stdio.h>\n' \
                                  '#include \"python_record_memory.h\"\n'
-    record_malloc_code_func = 'void python_record_malloc_address(char * function, int line, void * pointer)\n' \
+    record_malloc_code_func = 'void python_record_malloc_address(const char * function, int line, void * pointer)\n' \
                               '{\n' \
                               '    printf(\"%s %d malloc %p\\n\", function, line, pointer);\n' \
                               '}\n'
-    record_free_code_func = 'void python_record_free_address(char * function, int line, void * pointer)\n' \
+    record_free_code_func = 'void python_record_free_address(const char * function, int line, void * pointer)\n' \
                             '{\n' \
                             '    printf(\"%s %d free %p\\n\", function, line, pointer);\n' \
                             '}\n'
